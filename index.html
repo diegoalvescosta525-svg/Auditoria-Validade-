@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16324F">
+  <title>Auditoria de validade</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icones/icone-192.png">
+  <link rel="apple-touch-icon" href="icones/icone-192.png">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="fixo">
+  <header class="topo">
+    <h1>Auditoria de validade</h1>
+    <div class="quem" id="quem"></div>
+  </header>
+  <button type="button" id="barraSinc" class="sinc">Iniciando…</button>
+  <nav class="abas oculto" id="abas">
+    <button type="button" data-aba="auditar" class="ativa">Auditar</button>
+    <button type="button" data-aba="pendencias">Pulados</button>
+    <button type="button" data-aba="envios">Envios <span id="contFila" class="cont oculto"></span></button>
+  </nav>
+  </div>
+
+  <main>
+    <!-- LOGIN (precisa de internet só nesta etapa) -->
+    <section class="tela oculto" id="tela-login">
+      <h2>Entrar</h2>
+      <div class="bloco">
+        <p class="ajuda">O primeiro acesso precisa de internet. Depois o app funciona sem conexão.</p>
+        <div id="campoServidor">
+          <label for="loginServidor">Endereço do servidor</label>
+          <input type="url" id="loginServidor" placeholder="https://script.google.com/macros/s/.../exec" autocapitalize="none">
+        </div>
+        <label for="loginUsuario">Login</label>
+        <input type="text" id="loginUsuario" autocomplete="username" autocapitalize="none">
+        <label for="loginPin">PIN</label>
+        <input type="password" id="loginPin" inputmode="numeric" autocomplete="current-password">
+        <p class="msg erro oculto" id="loginErro"></p>
+        <div class="linha-btns"><button class="btn primario" id="btnLogin" type="button">Entrar e baixar meus endereços</button></div>
+      </div>
+    </section>
+
+    <!-- AUDITAR -->
+    <section class="tela oculto" id="tela-auditar">
+      <div id="escolha">
+        <h2>Meus endereços</h2>
+        <div class="kpis" id="resumo"></div>
+        <div class="bloco">
+          <label for="selOperacao">Operação</label>
+          <select id="selOperacao"></select>
+          <label>Tipo de endereço</label>
+          <div class="seg" id="segTipo">
+            <button type="button" data-v="AE">AE</button>
+            <button type="button" data-v="AP">AP</button>
+            <button type="button" data-v="TODOS" class="sel">Todos</button>
+          </div>
+          <label for="selRua">Começar pela rua</label>
+          <select id="selRua"></select>
+          <p class="ajuda" id="retomarInfo"></p>
+          <div class="linha-btns"><button class="btn primario" id="btnComecar" type="button">Começar</button></div>
+        </div>
+        <p class="ajuda" id="pacoteInfo"></p>
+      </div>
+
+      <div id="itemArea" class="oculto">
+        <div class="bloco">
+          <div class="cab-item">
+            <span class="tipo-tag" id="itTipo">AE</span>
+            <span class="ajuda" id="itRestantes"></span>
+            <button class="btn sec pequeno" id="btnVoltar" type="button">Trocar filtro</button>
+          </div>
+          <div class="placa" aria-label="Endereço">
+            <div><small>Rua</small><b id="itRua"></b></div>
+            <div><small>Prédio</small><b id="itPredio"></b></div>
+            <div><small>Nível</small><b id="itNivel"></b></div>
+            <div><small>Apto</small><b id="itApto"></b></div>
+          </div>
+          <div class="produto"><div class="cod" id="itCod"></div><div class="desc" id="itDesc"></div></div>
+          <div class="dados">
+            <div><small>Validade no sistema</small><b id="itDtval"></b></div>
+            <div><small>Dias para vencer</small><b id="itDias"></b></div>
+            <div><small>Qtde no endereço</small><b id="itQtde"></b></div>
+            <div><small>Seleção</small><b id="itMotivo" class="peq"></b></div>
+          </div>
+          <div id="itSelos"></div>
+        </div>
+        <div class="bloco" id="formAE">
+          <h3>Validade física encontrada</h3>
+          <label for="aeValidade">Data de validade</label>
+          <input type="date" id="aeValidade">
+          <label for="aeObs">Observação (opcional)</label>
+          <textarea id="aeObs" maxlength="500"></textarea>
+        </div>
+        <div class="bloco" id="formAP">
+          <h3>Validades e quantidades encontradas</h3>
+          <div id="lotes"></div>
+          <p class="soma" id="somaLotes"></p>
+          <button class="btn sec pequeno" id="btnAddLote" type="button">+ Adicionar validade</button>
+          <label for="apObs">Observação (opcional)</label>
+          <textarea id="apObs" maxlength="500"></textarea>
+        </div>
+      </div>
+      <div class="acoes-fixas oculto" id="acoesItem">
+        <button class="btn sec" id="btnPular" type="button">Pular</button>
+        <button class="btn destaque" id="btnSalvar" type="button">Salvar e próximo</button>
+      </div>
+    </section>
+
+    <!-- PULADOS -->
+    <section class="tela oculto" id="tela-pendencias">
+      <h2>Endereços pulados</h2>
+      <p class="ajuda">Toque para auditar agora.</p>
+      <div class="bloco lista" id="listaPend"></div>
+    </section>
+
+    <!-- ENVIOS -->
+    <section class="tela oculto" id="tela-envios">
+      <h2>Envios</h2>
+      <div class="bloco">
+        <p id="enviosStatus"></p>
+        <div class="linha-btns">
+          <button class="btn primario" id="btnSincronizar" type="button">Enviar agora</button>
+          <button class="btn sec" id="btnAtualizar" type="button">Baixar atualizações</button>
+        </div>
+      </div>
+      <div class="bloco"><h3>Aguardando envio</h3><div id="listaFila"></div></div>
+      <div class="bloco"><h3>Recusados pelo servidor</h3><div id="listaRej"></div></div>
+      <div class="bloco">
+        <button class="btn sec" id="btnInstalar" type="button" hidden>Instalar na tela inicial</button>
+        <button class="btn perigo" id="btnSair" type="button">Sair deste aparelho</button>
+        <p class="ajuda" id="versaoApp"></p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+  <div id="modal" class="oculto"><div class="caixa" id="modalCaixa"></div></div>
+  <script src="config.js"></script>
+  <script src="logica.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
